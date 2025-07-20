@@ -18,8 +18,8 @@ A simple FastAPI web application for registering students and tracking their wee
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/chisomjude/student-project-tracker.git
-cd student-project-tracker
+git clone https://github.com/bonaventuresimeon/student-progress-tracker2.git
+cd student-progress-tracker2
 ```
 
 ### 2. Create Virtual Environment & Install Dependencies
@@ -38,9 +38,9 @@ pip install -r requirements.txt
 
 ### 4. Run the Application Locally
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8011 --reload
 ```
-Visit `http://vmip:8000` to see your app in action.
+Visit `http://vmip:8011` to see your app in action.
 
 ---
 
@@ -53,7 +53,7 @@ docker build -t student-tracker .
 
 ### 2. Run Docker Container
 ```bash
-docker run --env-file .env -p 8000:8000 student-tracker
+docker run --env-file .env -p 8011:8000 student-tracker
 ```
 
 ### 3. Push to Docker Hub
@@ -89,7 +89,7 @@ You can deploy the app on platforms like:
 - Elastic Beanstalk or more
 
 
-## 👩🏽‍💻 Built for the Cloud Native Series by Chisom
+## 👩🏽‍💻 Built for the Cloud Native Series by Bonaventure
 This project is used for learning cloud-native tools and Handson-Project.
 
 Feel free to fork and extend it!

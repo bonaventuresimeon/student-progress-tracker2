@@ -1,78 +1,34 @@
-name: CI/CD Pipeline – Docker → AWS
+name: Deploy student_tracker content to Pages
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
-  id-token: write
   contents: read
+  pages: write
+  id-token: write
 
-env:
-  AWS_REGION: eu-central-1          # adjust as needed
-  ECR_REPO_FRONTEND: frontend-repo
-  ECR_REPO_BACKEND: backend-repo
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  authenticate:
-    name: Authenticate to AWS
-    runs-on: ubuntu-latest
-    outputs:
-      aws-region: ${{ env.AWS_REGION }}
-    steps:
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
-
-  build-and-push:
-    name: Build & Push Docker Images
-    needs: authenticate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{ needs.authenticate.outputs.aws-region }} \
-            | docker login --username AWS \
-              --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-
-      - name: Build & Push Frontend image
-        run: |
-          docker build -t $ECR_REPO_FRONTEND:${{ github.sha }} ./templates
-          docker tag $ECR_REPO_FRONTEND:${{ github.sha }} \
-            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/$ECR_REPO_FRONTEND:${{ github.sha }}
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/$ECR_REPO_FRONTEND:${{ github.sha }}
-
-      - name: Build & Push Backend image
-        run: |
-          docker build -t $ECR_REPO_BACKEND:${{ github.sha }} ./app
-          docker tag $ECR_REPO_BACKEND:${{ github.sha }} \
-            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/$ECR_REPO_BACKEND:${{ github.sha }}
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/$ECR_REPO_BACKEND:${{ github.sha }}
-
   deploy:
-    name: Deploy to ECS
-    needs: build-and-push
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Re-authenticate to AWS
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Update ECS services
-        run: |
-          aws ecs update-service \
-            --cluster myCluster \
-            --service frontend-service \
-            --force-new-deployment
-          aws ecs update-service \
-            --cluster myCluster \
-            --service backend-service \
-            --force-new-deployment
+          path: 'templates'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

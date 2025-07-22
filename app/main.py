@@ -1,8 +1,13 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from app.crud import create_student, get_student_progress, update_student_progress, count_students, get_all_students
-# added -  get_all_students (in line 4 above)
+from app.crud import (
+    create_student,
+    get_student_progress,
+    update_student_progress,
+    count_students,
+    get_all_students  # added admin CRUD import
+)
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -30,9 +35,9 @@ async def progress_submit(request: Request, name: str = Form(...)):
     student = await get_student_progress(name)
     progress = []
 
-    if student and  "progress" in student:
-       for week, status in student["progress"].items():
-          progress.append({"week": week, "status": status})
+    if student and "progress" in student:
+        for week, status in student["progress"].items():
+            progress.append({"week": week, "status": status})
     return templates.TemplateResponse("progress.html", {"request": request, "progress": progress, "name": name})
 
 @app.get("/update", response_class=HTMLResponse)

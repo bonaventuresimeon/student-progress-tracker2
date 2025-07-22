@@ -24,8 +24,8 @@ async def update_student_progress(name: str, week: str, status: str):
 async def count_students():
     return await student_collection.count_documents({})
 
-# added Admin CRUD operations - Get all students
-
+# ── Admin helper ────────────────────────────────────────────────
+# Returns a list of all student documents for display in admin.html
 async def get_all_students():
     students_cursor = student_collection.find({})
     students = []

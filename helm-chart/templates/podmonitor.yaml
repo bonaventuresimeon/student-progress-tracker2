@@ -1,0 +1,22 @@
+{{- if and .Values.podMonitor (hasKey .Values.podMonitor "enabled") .Values.podMonitor.enabled }}
+{{- $fullname := (include "nativeseries.fullname" . | default .Release.Name) }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{$fullname}}-pod-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+    {{- if .Values.podMonitor.labels }}
+    {{- toYaml .Values.podMonitor.labels | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "nativeseries.selectorLabels" . | nindent 6 }}
+  podMetricsEndpoints:
+  - port: http
+    path: {{ .Values.podMonitor.path }}
+    interval: {{ .Values.podMonitor.interval }}
+    scrapeTimeout: 10s
+{{- end }}

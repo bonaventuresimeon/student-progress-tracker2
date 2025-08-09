@@ -1,0 +1,28 @@
+apiVersion: v2
+name: nativeseries
+description: A Helm chart for deploying NativeSeries application with ArgoCD
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - python
+  - fastapi
+  - kubernetes
+  - helm
+  - argocd
+  - nativeseries
+home: https://github.com/bonaventuresimeon/nativeseries
+sources:
+- https://github.com/bonaventuresimeon/nativeseries
+maintainers:
+  - name: Bonaventure Simeon
+    email: contact@bonaventure.org.ng
+# dependencies:
+#   - name: mongodb
+#     version: 13.9.4
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: mongodb.enabled
+#   - name: redis
+#     version: 21.2.13
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: redis.enabled

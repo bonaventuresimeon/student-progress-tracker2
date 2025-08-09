@@ -1,0 +1,104 @@
+[build]
+  command = "./build.sh"
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+  NODE_VERSION = "18"
+
+# Application Configuration
+[build.environment]
+  APP_ENV = "production"
+  APP_NAME = "NativeSeries"
+  APP_VERSION = "1.0.0"
+  SECRET_KEY = "nativeseries-secret-key-2024"
+  DEBUG = "false"
+  LOG_LEVEL = "INFO"
+  
+  # Database Configuration
+  DATABASE_URL = "memory://"
+  DATABASE_NAME = "nativeseries"
+  COLLECTION_NAME = "students"
+  MONGO_URI = "memory://"
+  
+  # Security and CORS
+  CORS_ORIGINS = "*"
+  ALLOWED_HOSTS = "*"
+
+# API Redirects
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/health"
+  status = 200
+
+[[redirects]]
+  from = "/docs"
+  to = "/.netlify/functions/api/docs"
+  status = 200
+
+[[redirects]]
+  from = "/openapi.json"
+  to = "/.netlify/functions/api/openapi.json"
+  status = 200
+
+# Database display redirects
+[[redirects]]
+  from = "/database"
+  to = "/database.html"
+  status = 200
+
+[[redirects]]
+  from = "/api-docs"
+  to = "/api.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+# Catch-all redirect for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Development configuration
+[dev]
+  command = "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  port = 8000
+  publish = "public"
+  functions = "netlify/functions"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Functions configuration
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Preview configuration
+[context.preview]
+  command = "./build.sh"
+  publish = "public"
+  functions = "netlify/functions"
+
+[context.preview.environment]
+  APP_ENV = "preview"
+  DEBUG = "true"

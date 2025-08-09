@@ -1,0 +1,164 @@
+# Default values for nativeseries
+# This is a YAML-formatted file.
+
+# Application configuration
+app:
+  name: nativeseries
+  port: 8000
+  env:
+    - name: APP_ENV
+      value: "production"
+    - name: HOST
+      value: "0.0.0.0"
+    - name: PORT
+      value: "8000"
+    - name: LOG_LEVEL
+      value: "INFO"
+
+# Image configuration
+image:
+  repository: ghcr.io/bonaventuresimeon/nativeseries
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Deployment configuration
+replicaCount: 2
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Health checks
+healthCheck:
+  enabled: true
+  path: /health
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# Service configuration
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8000
+  nodePort: 30011  # Maps to production port on the host
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: nativeseries.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - nativeseries.local
+      secretName: nativeseries-tls
+
+# ConfigMap data
+configMap:
+  enabled: true
+  data:
+    app_name: "NativeSeries API"
+    log_level: "INFO"
+
+# Secret data (for sensitive information)
+secret:
+  enabled: true
+  data:
+    SECRET_KEY: "supersecretkey"
+    API_TOKEN: "demo-token"
+
+# Network Policy
+networkPolicy:
+  enabled: true
+
+# ArgoCD configuration
+argocd:
+  enabled: false
+
+# Pod Monitor for Prometheus (if using Prometheus Operator)
+podMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+  labels:
+    release: prometheus
+
+# Prometheus Rules
+prometheusRules:
+  enabled: true
+  rules:
+    - alert: HighRequestCount
+      expr: sum(rate(http_requests_total[1m])) > 100
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: High request count detected
+        description: More than 100 requests per minute
+
+# Logging configuration
+logging:
+  enabled: true
+  volume:
+    size: 2Gi
+
+# Cleanup configuration
+cleanup:
+  enabled: true
+
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 2000
+
+# Security Context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false  # Changed to false for logs
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# ServiceMonitor for Prometheus (if using Prometheus Operator)
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+  labels:
+    release: prometheus

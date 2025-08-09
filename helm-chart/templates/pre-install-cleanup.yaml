@@ -1,0 +1,108 @@
+{{- if .Values.cleanup.enabled | default true }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "nativeseries.fullname" . }}-pre-install-cleanup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "nativeseries.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "nativeseries.fullname" . }}-cleanup
+      containers:
+      - name: cleanup
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Cleaning up existing resources that might conflict with Helm..."
+          
+          # Delete existing network policies
+          kubectl delete networkpolicy -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          # Delete existing secrets (except system ones)
+          kubectl delete secret -n {{ .Release.Namespace }} --field-selector type!=kubernetes.io/service-account-token --ignore-not-found=true || true
+          
+          # Delete existing configmaps
+          kubectl delete configmap -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          # Delete existing deployments
+          kubectl delete deployment -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          # Delete existing services
+          kubectl delete service -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          # Delete existing ingress
+          kubectl delete ingress -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          # Delete existing HPA
+          kubectl delete hpa -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          # Delete existing PDB
+          kubectl delete pdb -n {{ .Release.Namespace }} --all --ignore-not-found=true || true
+          
+          echo "Cleanup completed successfully"
+        env:
+        - name: KUBECONFIG
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "nativeseries.fullname" . }}-cleanup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "nativeseries.fullname" . }}-cleanup
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "services"]
+  verbs: ["delete", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["delete", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies", "ingresses"]
+  verbs: ["delete", "list"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["delete", "list"]
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
+  verbs: ["delete", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "nativeseries.fullname" . }}-cleanup
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "nativeseries.fullname" . }}-cleanup
+subjects:
+- kind: ServiceAccount
+  name: {{ include "nativeseries.fullname" . }}-cleanup
+  namespace: {{ .Release.Namespace }}
+{{- end }}

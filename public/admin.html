@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NativeSeries - Admin Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
+        .content { padding: 20px; }
+        .back-btn { color: white; text-decoration: none; padding: 8px 16px; border: 1px solid white; border-radius: 5px; }
+        .admin-section { margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Admin Panel</h1>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </div>
+        <div class="content">
+            <div class="admin-section">
+                <h2>Database Management</h2>
+                <p><a href="/database.html">View Database</a></p>
+                <p><a href="/api.html">API Documentation</a></p>
+            </div>
+            <div class="admin-section">
+                <h2>System Status</h2>
+                <p><a href="/health">Health Check</a></p>
+                <p>Environment: Netlify Functions</p>
+                <p>Database: In-Memory Storage</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

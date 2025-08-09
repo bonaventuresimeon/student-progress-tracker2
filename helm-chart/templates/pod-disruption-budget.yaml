@@ -1,0 +1,15 @@
+{{- if and .Values.podDisruptionBudget (hasKey .Values.podDisruptionBudget "enabled") .Values.podDisruptionBudget.enabled }}
+{{- $fullname := (include "nativeseries.fullname" . | default .Release.Name) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{$fullname}}-pdb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "nativeseries.selectorLabels" . | nindent 6 }}
+{{- end }}

@@ -1,0 +1,15 @@
+{{- if .Values.logging.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "nativeseries.fullname" . }}-logs-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nativeseries.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.logging.volume.size }}
+{{- end }}

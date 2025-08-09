@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NativeSeries - API Documentation</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #f8f9fa;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid white;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .put { background: #ffc107; color: black; }
+        .delete { background: #dc3545; color: white; }
+        .url {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: block;
+        }
+        .description {
+            color: #666;
+            margin: 10px 0;
+        }
+        .test-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .test-btn:hover {
+            background: #5a6fd8;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 NativeSeries API Documentation</h1>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </div>
+        
+        <div class="content">
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>Health Check</strong>
+                <div class="url">/.netlify/functions/health</div>
+                <div class="description">Check the health status of the application</div>
+                <button class="test-btn" onclick="testEndpoint('/.netlify/functions/health', 'health-response')">Test Endpoint</button>
+                <div id="health-response" class="response"></div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>Get All Students</strong>
+                <div class="url">/.netlify/functions/api/students</div>
+                <div class="description">Retrieve all student records from the database</div>
+                <button class="test-btn" onclick="testEndpoint('/.netlify/functions/api/students', 'students-response')">Test Endpoint</button>
+                <div id="students-response" class="response"></div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>Get All Courses</strong>
+                <div class="url">/.netlify/functions/api/courses</div>
+                <div class="description">Retrieve all course information</div>
+                <button class="test-btn" onclick="testEndpoint('/.netlify/functions/api/courses', 'courses-response')">Test Endpoint</button>
+                <div id="courses-response" class="response"></div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>Get All Progress</strong>
+                <div class="url">/.netlify/functions/api/progress</div>
+                <div class="description">Retrieve all progress records</div>
+                <button class="test-btn" onclick="testEndpoint('/.netlify/functions/api/progress', 'progress-response')">Test Endpoint</button>
+                <div id="progress-response" class="response"></div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>Database Statistics</strong>
+                <div class="url">/.netlify/functions/api/stats</div>
+                <div class="description">Get database statistics and metadata</div>
+                <button class="test-btn" onclick="testEndpoint('/.netlify/functions/api/stats', 'stats-response')">Test Endpoint</button>
+                <div id="stats-response" class="response"></div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>Add Student</strong>
+                <div class="url">/.netlify/functions/api/students</div>
+                <div class="description">Add a new student record (requires JSON body)</div>
+                <button class="test-btn" onclick="testPostEndpoint('/.netlify/functions/api/students', 'add-student-response')">Test Endpoint</button>
+                <div id="add-student-response" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testEndpoint(url, responseId) {
+            const responseDiv = document.getElementById(responseId);
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function testPostEndpoint(url, responseId) {
+            const responseDiv = document.getElementById(responseId);
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'Loading...';
+            
+            try {
+                const testData = {
+                    name: "Test Student",
+                    email: "test@example.com",
+                    course: "Test Course"
+                };
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
